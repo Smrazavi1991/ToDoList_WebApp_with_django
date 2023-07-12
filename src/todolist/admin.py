@@ -1,6 +1,19 @@
 from django.contrib import admin
 from .models import *
 
-# Register your models here.
+from django_jalali.admin.filters import JDateFieldListFilter
+import django_jalali.admin as jadmin
+
 admin.site.register(User)
-admin.site.register(Task)
+
+
+class TaskAdmin(admin.ModelAdmin):
+    list_filter = (
+        ('due_date', JDateFieldListFilter),
+    )
+
+
+admin.site.register(Task, TaskAdmin)
+
+# Register your models here.
+admin.site.register(Category)
