@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 from django.views import View
 from .forms import *
 from .models import *
@@ -11,9 +11,24 @@ class Home(LoginRequiredMixin, ListView):
     login_url = "/login/"
 
     def get_queryset(self):
-        return Task.objects.get(owner_id=self.request.user.pk)
+        return Task.objects.filter(owner_id=self.request.user.pk)
 
     template_name = "todolist/user_tasks.html"
+
+
+class TaskDetail(View):
+    def get(self, request, **kwargs):
+        task_info = Task.objects.get(pk=kwargs['pk'])
+        return render(request, 'todolist/task_detail.html', {'task': task_info})
+
+    def post(self, request):
+        pass
+
+    def put(self, request):
+        pass
+
+    def delete(self, request):
+        pass
 
 
 class Register(View):
