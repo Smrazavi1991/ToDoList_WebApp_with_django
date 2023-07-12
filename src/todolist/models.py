@@ -32,7 +32,16 @@ class User(AbstractUser):
 
 
 class Task(BaseModel):
+    categories = [
+        ('p', 'personal'),
+        ('w', 'work')
+    ]
     name = models.CharField('Name', max_length=200)
     description = models.CharField('Description', max_length=2000)
-    due_date = models.DateTimeField('Due Date')
+    category = models.CharField(choices=categories, max_length=1)
+    due_date = models.DateTimeField('Due Date', null=True)
     done = models.BooleanField('Done', default=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
