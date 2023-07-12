@@ -1,24 +1,39 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, DetailView
+from django.views import View
+from .forms import *
+from .models import *
 
-# Create your views here.
-class Register(View, BasicViewMixin):
+
+class Home(LoginRequiredMixin, ListView):
+    login_url = "/login/"
+
+    def get_queryset(self):
+        return Task.objects.get(owner_id=self.request.user.pk)
+
+    template_name = "todolist/user_tasks.html"
+
+
+class Register(View):
 
     def get(self, request):
         registeration_form = RegisterUserForm()
-        return render(request, "user/register.html", {"categories": self.categories, "form": registeration_form})
+        return render(request, "user/register.html", {"form": registeration_form})
 
     def post(self, request):
         form = RegisterUserForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('Login')
-        return render(request, 'user/register.html', {"categories": self.categories, 'form': form})
+        return render(request, 'user/register.html', {'form': form})
 
 
-class Login(View, BasicViewMixin):
+class Login(View):
     def get(self, request):
         form = Loginform()
-        return render(request, 'user/login.html', {'categories': self.categories, 'form': form})
+        return render(request, 'user/login.html', {'form': form})
 
     def post(self, request):
         form = Loginform(request.POST)
@@ -27,13 +42,11 @@ class Login(View, BasicViewMixin):
             if user:
                 login(request, user)
                 response = redirect('Home-page')
-                request.session['username'] = form.cleaned_data.get('username')
+                # request.session['username'] = form.cleaned_data.get('username')
                 return response
-        return render(request, 'user/login.html', {"categories": self.categories, 'form': form})
+        return render(request, 'user/login.html', {'form': form})
 
-    class Logout(View, BasicViewMixin):
+    class Logout(View):
         def get(self, request):
             logout(request)
-            response = redirect('Home-page')
-            response.set_cookie("token", '')
-            return response
+            return redirect('Home-page')
