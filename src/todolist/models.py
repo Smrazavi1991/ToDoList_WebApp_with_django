@@ -3,9 +3,14 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 
-# Create your models here.
+def due_date_validator(value):
+    if datetime.datetime.now() > value:
+        raise ValidationError(f'You cannot set a task in past ({value})!!!')
+
+
 class BaseModel(models.Model):
     class Meta:
         abstract = True
@@ -31,15 +36,15 @@ class User(AbstractUser):
         return self.get_full_name()
 
 
+class Category(BaseModel):
+    name = models.CharField('Category Name', max_length=200)
+
+
 class Task(BaseModel):
-    categories = [
-        ('p', 'personal'),
-        ('w', 'work')
-    ]
     name = models.CharField('Name', max_length=200)
     description = models.CharField('Description', max_length=2000)
-    category = models.CharField(choices=categories, max_length=1)
-    due_date = models.DateTimeField('Due Date', null=True)
+    category = models.ManyToManyField(Category)
+    due_date = models.DateTimeField('Due Date', null=True, validators=[due_date_validator])
     done = models.BooleanField('Done', default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
