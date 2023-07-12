@@ -20,6 +20,7 @@ from todolist.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", Home.as_view(), name="Home-page"),
+    path("task-detail/<int:pk>", TaskDetail.as_view(), name="Task Detail"),
     path("register/", Register.as_view(), name="Register"),
     path("login/", Login.as_view(), name="Register")
 ]
